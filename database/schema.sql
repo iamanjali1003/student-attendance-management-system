@@ -5,6 +5,7 @@
 -- Drop existing tables if they exist (for clean setup)
 DROP TABLE IF EXISTS Attendance_Log;
 DROP TABLE IF EXISTS Attendance;
+DROP TABLE IF EXISTS Course_Enrollments;
 DROP TABLE IF EXISTS Courses;
 DROP TABLE IF EXISTS Students;
 DROP TABLE IF EXISTS Faculty;
