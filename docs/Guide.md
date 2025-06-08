@@ -1,4 +1,4 @@
-# User Manual
+# Guide
 
 ## Table of Contents
 
