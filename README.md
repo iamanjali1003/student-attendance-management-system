@@ -1,6 +1,6 @@
 <div align="center">
 <h1>Student Attendance Management System</h1>
-<h3>DBMS Lab (BCS403) Mini Project</h3>
+<h4>DBMS Lab (BCS403) Mini Project</h4>
 </div>
 
 # Overview
@@ -163,6 +163,6 @@ GROUP BY d.department_id;
 - Data integrity and constraints
 - Performance optimization
 
-## 📄 License
+## License
 
 [MIT](https://github.com/iamanjali1003/student-attendance-management-system/blob/main/LICENSE)
