@@ -1,6 +1,4 @@
 -- Master Setup Script for Student Attendance Management System
--- Course: BCS403 – DBMS Lab
--- This script sets up the complete database system
 
 -- Create database
 CREATE DATABASE IF NOT EXISTS student_attendance_db;
@@ -39,27 +37,27 @@ SOURCE database/sample_data.sql;
 SELECT 'Step 5: Verifying setup...' AS Status;
 
 -- Check table creation
-SELECT 
+SELECT
     TABLE_NAME as 'Created Tables',
     TABLE_ROWS as 'Row Count'
-FROM INFORMATION_SCHEMA.TABLES 
+FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA = 'student_attendance_db'
 ORDER BY TABLE_NAME;
 
 -- Check triggers
-SELECT 
+SELECT
     TRIGGER_NAME as 'Created Triggers',
     EVENT_MANIPULATION as 'Event',
     EVENT_OBJECT_TABLE as 'Table'
-FROM INFORMATION_SCHEMA.TRIGGERS 
+FROM INFORMATION_SCHEMA.TRIGGERS
 WHERE TRIGGER_SCHEMA = 'student_attendance_db'
 ORDER BY TRIGGER_NAME;
 
 -- Check procedures
-SELECT 
+SELECT
     ROUTINE_NAME as 'Created Procedures',
     ROUTINE_TYPE as 'Type'
-FROM INFORMATION_SCHEMA.ROUTINES 
+FROM INFORMATION_SCHEMA.ROUTINES
 WHERE ROUTINE_SCHEMA = 'student_attendance_db'
 ORDER BY ROUTINE_NAME;
 
@@ -76,7 +74,7 @@ SELECT COUNT(*) as Total_Attendance_Records FROM Attendance;
 
 -- Test a simple join
 SELECT 'Join Test:' AS Test_Type;
-SELECT 
+SELECT
     s.name AS Student,
     c.course_name AS Course,
     a.status AS Status
@@ -91,4 +89,4 @@ CALL CalculateAttendancePercentage(1, 1, @percentage, @total, @present);
 SELECT @percentage AS Sample_Attendance_Percentage;
 
 SELECT 'Setup completed successfully!' AS Status;
-SELECT 'You can now run queries from the queries/ directory' AS Next_Steps; 
+SELECT 'You can now run queries from the queries/ directory' AS Next_Steps;

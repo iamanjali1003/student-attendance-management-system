@@ -1,5 +1,4 @@
 -- Sample Data for Student Attendance Management System
--- This file contains INSERT statements to populate the database with test data
 
 -- Insert Departments
 INSERT INTO Departments (department_name) VALUES
@@ -117,4 +116,4 @@ INSERT INTO Attendance (student_id, course_id, date, status, marked_by) VALUES
 (6, 1, '2024-01-22', 'Present', 1),
 (6, 2, '2024-01-23', 'Present', 2),
 (9, 1, '2024-01-22', 'Present', 1),
-(9, 2, '2024-01-23', 'Present', 2); 
+(9, 2, '2024-01-23', 'Present', 2);

@@ -1,5 +1,4 @@
 -- Test Queries for Student Attendance Management System
--- This file contains queries to test all features and generate sample outputs
 
 -- ========================================
 -- 1. Testing Basic CRUD Operations
@@ -25,7 +24,7 @@ SELECT 'Attendance_Log', COUNT(*) FROM Attendance_Log;
 -- ========================================
 
 -- Test 2: Student-Course-Faculty Join
-SELECT 
+SELECT
     s.name AS Student,
     s.roll_number AS RollNo,
     c.course_name AS Course,
@@ -39,7 +38,7 @@ JOIN Departments d ON s.department_id = d.department_id
 ORDER BY s.name;
 
 -- Test 3: Attendance Summary with Aggregation
-SELECT 
+SELECT
     s.name AS Student_Name,
     c.course_name AS Course,
     COUNT(a.attendance_id) AS Total_Classes,
@@ -47,7 +46,7 @@ SELECT
     SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS Absent,
     SUM(CASE WHEN a.status = 'Late' THEN 1 ELSE 0 END) AS Late,
     ROUND(
-        (SUM(CASE WHEN a.status IN ('Present', 'Late') THEN 1 ELSE 0 END) * 100.0) / 
+        (SUM(CASE WHEN a.status IN ('Present', 'Late') THEN 1 ELSE 0 END) * 100.0) /
         COUNT(a.attendance_id), 2
     ) AS Attendance_Percentage
 FROM Students s
@@ -62,7 +61,7 @@ ORDER BY Attendance_Percentage DESC;
 
 -- Test 4: Call attendance percentage calculation procedure
 CALL CalculateAttendancePercentage(1, 1, @percentage, @total, @present);
-SELECT 
+SELECT
     'Student ID 1, Course ID 1' AS Test_Case,
     @percentage AS Attendance_Percentage,
     @total AS Total_Classes,
@@ -82,7 +81,7 @@ CALL GetLowAttendanceStudents(80.00);
 -- ========================================
 
 -- Test 8: Insert new attendance record (should trigger log)
-INSERT INTO Attendance (student_id, course_id, date, status, marked_by) 
+INSERT INTO Attendance (student_id, course_id, date, status, marked_by)
 VALUES (1, 2, '2024-01-30', 'Present', 2);
 
 -- Check if trigger logged the insertion
@@ -90,8 +89,8 @@ SELECT 'After INSERT trigger test' AS Test_Description;
 SELECT * FROM Attendance_Log WHERE action_type = 'INSERT' ORDER BY changed_at DESC LIMIT 5;
 
 -- Test 9: Update attendance record (should trigger log)
-UPDATE Attendance 
-SET status = 'Late' 
+UPDATE Attendance
+SET status = 'Late'
 WHERE student_id = 1 AND course_id = 2 AND date = '2024-01-30';
 
 -- Check if trigger logged the update
@@ -103,7 +102,7 @@ SELECT * FROM Attendance_Log WHERE action_type = 'UPDATE' ORDER BY changed_at DE
 -- ========================================
 
 -- Test 10: Department-wise attendance statistics
-SELECT 
+SELECT
     d.department_name AS Department,
     COUNT(DISTINCT s.student_id) AS Total_Students,
     COUNT(DISTINCT c.course_id) AS Total_Courses,
@@ -119,14 +118,14 @@ GROUP BY d.department_id, d.department_name
 ORDER BY Avg_Attendance_Rate DESC;
 
 -- Test 11: Daily attendance trend
-SELECT 
+SELECT
     a.date AS Date,
     COUNT(a.attendance_id) AS Total_Records,
     SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS Present_Count,
     SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS Absent_Count,
     SUM(CASE WHEN a.status = 'Late' THEN 1 ELSE 0 END) AS Late_Count,
     ROUND(
-        (SUM(CASE WHEN a.status IN ('Present', 'Late') THEN 1 ELSE 0 END) * 100.0) / 
+        (SUM(CASE WHEN a.status IN ('Present', 'Late') THEN 1 ELSE 0 END) * 100.0) /
         COUNT(a.attendance_id), 2
     ) AS Daily_Attendance_Rate
 FROM Attendance a
@@ -134,7 +133,7 @@ GROUP BY a.date
 ORDER BY a.date DESC;
 
 -- Test 12: Faculty performance report
-SELECT 
+SELECT
     f.name AS Faculty_Name,
     COUNT(DISTINCT c.course_id) AS Courses_Teaching,
     COUNT(DISTINCT s.student_id) AS Students_Handling,
@@ -180,7 +179,7 @@ WHERE s.student_id IS NULL;
 -- ========================================
 
 -- Test 14: Query performance test (with EXPLAIN)
-EXPLAIN SELECT 
+EXPLAIN SELECT
     s.name,
     c.course_name,
     a.date,
@@ -196,7 +195,7 @@ ORDER BY a.date DESC;
 -- ========================================
 
 -- Test 15: Complete student profile with attendance
-SELECT 
+SELECT
     s.student_id,
     s.name AS Student_Name,
     s.roll_number,
@@ -217,7 +216,7 @@ GROUP BY s.student_id
 ORDER BY Overall_Attendance_Percentage DESC;
 
 -- Test 16: Attendance log analysis
-SELECT 
+SELECT
     al.action_type AS Action,
     COUNT(*) AS Frequency,
     MIN(al.changed_at) AS First_Occurrence,
@@ -227,13 +226,13 @@ GROUP BY al.action_type
 ORDER BY Frequency DESC;
 
 -- Test 17: Course enrollment statistics
-SELECT 
+SELECT
     c.course_name,
     c.course_code,
     c.credits,
     f.name AS Faculty,
     COUNT(ce.student_id) AS Enrolled_Students,
-    CASE 
+    CASE
         WHEN COUNT(ce.student_id) > 5 THEN 'High Enrollment'
         WHEN COUNT(ce.student_id) > 2 THEN 'Medium Enrollment'
         ELSE 'Low Enrollment'
@@ -242,4 +241,4 @@ FROM Courses c
 JOIN Faculty f ON c.faculty_id = f.faculty_id
 LEFT JOIN Course_Enrollments ce ON c.course_id = ce.course_id AND ce.status = 'Active'
 GROUP BY c.course_id
-ORDER BY Enrolled_Students DESC; 
+ORDER BY Enrolled_Students DESC;

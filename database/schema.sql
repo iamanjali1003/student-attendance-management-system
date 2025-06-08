@@ -1,6 +1,11 @@
--- Student Attendance Management System Database Schema
--- Course: BCS403 – DBMS Lab
--- Type: Mini Project
+-- Schema for Student Attendance Management System
+
+-- Create database first
+CREATE DATABASE IF NOT EXISTS student_attendance_db;
+USE student_attendance_db;
+
+-- Set SQL mode to continue on errors
+SET sql_mode = '';
 
 -- Drop existing tables if they exist (for clean setup)
 DROP TABLE IF EXISTS Attendance_Log;
@@ -102,4 +107,4 @@ CREATE INDEX idx_attendance_student ON Attendance(student_id);
 CREATE INDEX idx_attendance_course ON Attendance(course_id);
 CREATE INDEX idx_students_department ON Students(department_id);
 CREATE INDEX idx_faculty_department ON Faculty(department_id);
-CREATE INDEX idx_courses_faculty ON Courses(faculty_id); 
+CREATE INDEX idx_courses_faculty ON Courses(faculty_id);

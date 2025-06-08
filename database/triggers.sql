@@ -1,5 +1,4 @@
 -- Triggers for Student Attendance Management System
--- These triggers handle logging of attendance changes and student deletions
 
 DELIMITER //
 
@@ -114,7 +113,7 @@ CREATE TRIGGER validate_attendance_date
     FOR EACH ROW
 BEGIN
     IF NEW.date > CURRENT_DATE THEN
-        SIGNAL SQLSTATE '45000' 
+        SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Attendance cannot be marked for future dates';
     END IF;
 END//
@@ -127,4 +126,4 @@ BEGIN
     SET NEW.updated_at = CURRENT_TIMESTAMP;
 END//
 
-DELIMITER ; 
+DELIMITER ;
