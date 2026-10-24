@@ -1,168 +1,133 @@
-<div align="center">
-<h1>Student Attendance Management System</h1>
-<h4>DBMS Lab (BCS403) Mini Project</h4>
-</div>
+![Attendance System](.github/banner.png)
 
-# Overview
+A MySQL database for tracking student attendance across departments, faculty and courses.
 
-A comprehensive database management system for tracking student attendance across multiple courses, departments, and faculty members. Built for **BCS403 – DBMS Lab** as a mini project.
+[Guide](docs/Guide.md) · [Schema diagram](docs/Diagram.md) · [Report](REPORT.md)
 
-This system provides a complete solution for educational institutions to manage student attendance efficiently. It includes proper database design with normalization up to 3NF, comprehensive CRUD operations, triggers for audit logging, and stored procedures for complex operations.
+## Overview
+
+Built as the mini project for the DBMS Lab course (BCS403). The schema is
+normalised to third normal form, every change to attendance is logged by
+triggers, and the common reports are stored procedures, so the database enforces
+its own rules instead of trusting whatever application sits on top of it.
 
 ## Features
 
-- **🏢 Multi-Department Support**: Manage multiple departments with faculty and students
-- **👨‍🏫 Faculty Management**: Assign courses to faculty members
-- **👨‍🎓 Student Enrollment**: Track student enrollments across courses
-- **📅 Attendance Tracking**: Daily attendance with Present/Absent/Late status
-- **📊 Comprehensive Reporting**: Detailed analytics and reports
-- **🔍 Audit Trail**: Complete logging of all attendance changes
-- **⚡ Automated Procedures**: Bulk operations and percentage calculations
-- **🛡️ Data Integrity**: Foreign key constraints and validation triggers
-- **📈 Performance Optimized**: Proper indexing for fast queries
+- Seven tables covering departments, faculty, students, courses, enrolments and attendance
+- Daily attendance with a `Present`, `Absent` or `Late` status
+- One mark per student, course and day, enforced by a composite unique key
+- An audit log written by triggers on every insert, update and delete
+- Attendance can't be marked for a future date; a trigger rejects it
+- Six stored procedures for reports, bulk marking and finding low attendance
+- Indexes on every foreign key used in joins
 
-## Quick Start
+## Tech stack
 
-#### Prerequisites
+| Area | Choice |
+| --- | --- |
+| Database | MySQL 8.0 |
+| Language | SQL |
+| Logic | Stored procedures and triggers |
+| Tooling | MySQL Workbench (optional) |
 
-- MySQL Server 8.0+
-- MySQL Workbench (recommended)
+## How it works
 
-#### Installation
+```
+   Departments ──1:M──> Faculty ──1:M──> Courses
+        │                                   │
+       1:M                                 1:M
+        v                                   v
+    Students ──M:M (Course_Enrollments)──> Courses
+        │                                   │
+       1:M                                 1:M
+        └───────────────> Attendance <──────┘
+                              │
+                 triggers on insert, update, delete
+                              v
+                        Attendance_Log
+```
 
-1. **Clone the repository**
+![ER diagram](er.png)
 
-   ```bash
-   git clone <repository-url>
-   cd student-attendance-management-system
-   ```
+**Triggers**
 
-2. **Run the setup script**
+| Trigger | When | What it does |
+| --- | --- | --- |
+| `attendance_insert_log` | after insert on Attendance | logs the new mark |
+| `attendance_update_log` | after update on Attendance | logs the old and new status |
+| `attendance_delete_log` | after delete on Attendance | logs the removed mark |
+| `student_delete_log` | before delete on Students | logs the student's records before they go |
+| `validate_attendance_date` | before insert on Attendance | rejects a date in the future |
+| `update_attendance_timestamp` | before update on Attendance | keeps `updated_at` current |
 
-   ```sql
-   SOURCE setup.sql;
-   ```
+**Stored procedures**
 
-3. **Verify installation**
-   ```sql
-   USE student_attendance_db;
-   SHOW TABLES;
-   ```
+| Procedure | What it does |
+| --- | --- |
+| `CalculateAttendancePercentage` | a student's attendance percentage in a course |
+| `GetStudentAttendanceReport` | every course and percentage for one student |
+| `AutoMarkAbsent` | marks unmarked students absent for a course and date |
+| `GetCourseAttendanceSummary` | present, absent and late counts for a course on a date |
+| `BulkMarkAttendance` | marks a comma-separated list of students in one call |
+| `GetLowAttendanceStudents` | students below a percentage threshold |
 
-## Database Schema
+## Getting started
 
-#### Core Tables
+Needs MySQL Server 8.0 or later.
 
-- **Departments**: Department information
-- **Faculty**: Faculty members linked to departments
-- **Students**: Student details with department association
-- **Courses**: Course information with faculty assignments
-- **Course_Enrollments**: Student-course enrollment tracking
-- **Attendance**: Daily attendance records
-- **Attendance_Log**: Audit trail for all changes
+```bash
+git clone https://github.com/iamanjali1003/student-attendance-management-system.git
+cd student-attendance-management-system
+mysql -u root -p
+```
 
-#### Key Relationships
-
-- Department → Faculty (1:M)
-- Department → Students (1:M)
-- Faculty → Courses (1:M)
-- Students ↔ Courses (M:M via Enrollments)
-- Students → Attendance (1:M)
-- Courses → Attendance (1:M)
-
-## Key Components
-
-#### 1. **CRUD Operations**
-
-Complete Create, Read, Update, Delete operations for all entities with examples in `queries/crud_operations.sql`.
-
-#### 2. **Triggers**
-
-- **Audit Logging**: Automatic logging of attendance changes
-- **Data Validation**: Prevent invalid data entry
-- **Timestamp Management**: Auto-update modification times
-
-#### 3. **Stored Procedures**
-
-- `CalculateAttendancePercentage()`: Calculate student attendance percentage
-- `GetStudentAttendanceReport()`: Comprehensive student reports
-- `AutoMarkAbsent()`: Auto-mark unmarked students as absent
-- `BulkMarkAttendance()`: Mark attendance for multiple students
-- `GetLowAttendanceStudents()`: Identify students with low attendance
-
-#### 4. **Advanced Queries**
-
-- Join operations across multiple tables
-- Aggregation and grouping for reports
-- Complex analytics with subqueries
-- Performance-optimized queries with indexes
-
-## Usage Examples
-
-#### Mark Attendance
+Then, from the MySQL prompt in the repository folder:
 
 ```sql
+SOURCE setup.sql;
+USE student_attendance_db;
+SHOW TABLES;
+```
+
+`setup.sql` creates the database, then loads the schema, triggers, procedures
+and sample data in that order.
+
+## Usage
+
+```sql
+-- mark attendance
 INSERT INTO Attendance (student_id, course_id, date, status, marked_by)
 VALUES (1, 1, CURRENT_DATE, 'Present', 1);
-```
 
-#### Get Attendance Report
-
-```sql
+-- one student's report
 CALL GetStudentAttendanceReport(1);
-```
 
-#### Find Low Attendance Students
-
-```sql
+-- everyone under 75%
 CALL GetLowAttendanceStudents(75.00);
 ```
 
-#### Department-wise Statistics
+More examples are in `queries/crud_operations.sql` and `queries/test_queries.sql`.
 
-```sql
-SELECT
-    d.department_name,
-    COUNT(DISTINCT s.student_id) as Total_Students,
-    AVG(CASE WHEN a.status IN ('Present', 'Late') THEN 100.0 ELSE 0.0 END) as Avg_Attendance
-FROM Departments d
-LEFT JOIN Students s ON d.department_id = s.department_id
-LEFT JOIN Attendance a ON s.student_id = a.student_id
-GROUP BY d.department_id;
+## Project structure
+
 ```
-
-## Requirements
-
-#### Functional Requirements
-
-- [x] Multi-entity database design (Students, Faculty, Courses, Departments)
-- [x] Proper normalization up to 3NF
-- [x] Complete CRUD operations
-- [x] JOIN operations with aggregation and grouping
-- [x] Triggers for audit logging and validation
-- [x] Stored procedures for complex operations
-- [x] Comprehensive constraints and data integrity
-
-#### Technical Requirements
-
-- [x] MySQL database with proper schema design
-- [x] Foreign key relationships with referential integrity
-- [x] Indexes for performance optimization
-- [x] Sample data for testing and demonstration
-- [x] Comprehensive documentation and user manual
-
-## Academic Context
-
-**Course**: BCS403 – DBMS Lab
-**Type**: Mini Project
-**Focus Areas**:
-
-- Database design and normalization
-- SQL operations and advanced queries
-- Triggers and stored procedures
-- Data integrity and constraints
-- Performance optimization
+.
+├── setup.sql                 runs everything below, in order
+├── database/
+│   ├── schema.sql            tables, keys and indexes
+│   ├── triggers.sql          audit log, validation, timestamps
+│   ├── procedures.sql        the six stored procedures
+│   └── sample_data.sql       a small dataset to try it with
+├── queries/
+│   ├── crud_operations.sql
+│   └── test_queries.sql
+├── docs/
+│   ├── Guide.md              full walkthrough
+│   └── Diagram.md
+├── er.png                    entity-relationship diagram
+└── REPORT.md                 the course report
+```
 
 ## License
 
-[MIT](https://github.com/iamanjali1003/student-attendance-management-system/blob/main/LICENSE)
+[MIT](LICENSE) © 2025 [Anjali](https://iamanjali1003.github.io)
